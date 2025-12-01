@@ -1,0 +1,27 @@
+const width = 800;
+const height = 400;
+
+// Get 2d drawing context
+const ctx = document.getElementById('c').getContext('2d');
+// Get copy of actual imagedata (for the whole canvas area)
+const imageData = ctx.getImageData(0, 0, width, height);
+// Create a buffer that's the same size as our canvas image data
+const buf = new ArrayBuffer(imageData.data.length);
+// 'Live' 8 bit clamped view to our buffer, we'll use this for writing to the canvas
+const buf8 = new Uint8ClampedArray(buf);
+// 'Live' 32 bit view into our buffer, we'll use this for drawing
+const buf32 = new Uint32Array(buf);
+// RGBA stored in a 32bit uint
+const red = (255 << 24) | 255;
+// Loop through all the pixels.
+for (let y = 0; y < height; y++) {
+  const yw = y * width;
+  for (let x = 0; x < width; x++) {
+    buf32[yw + x] = red;
+  }
+}
+ctx.font = "50px Arial";
+ctx.fillText("Hello World",10,80);
+// Update imageData and put it to our drawing context
+imageData.data.set(buf8);
+ctx.putImageData(imageData, 0, 0);
