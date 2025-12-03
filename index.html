@@ -134,9 +134,10 @@ var string = document.getElementById("myText").value;
 var lenght = string.length;
 var modifier = document.getElementById("modifier").value;
 var lettersize = document.getElementById("lettersize").value;
-font = document.getElementById("font").value;
-fontdescr = `${modifier} ${lettersize}px ${font}`;
-console.log(fontdescr);
+var font = document.getElementById("font").value;
+var fontdescr = `${lettersize}px ${modifier} ${font}`;
+console.log(fontdescr)
+// ctx.font = "50px bold italics Times";
 ctx.font = fontdescr;
 gap = document.getElementById("gap").value * lettersize;
 for (var i = 1; i<(height/gap); i = i+1){
