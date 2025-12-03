@@ -57,6 +57,14 @@
     <label for="angle">angle</label>
     <input type="range" id="angle" min="-3.1" max="3.1" step="0.01" value="0">
     <span id="angle"></span>
+
+    <label for="lfo">lfo</label>
+    <input type="range" id="lfo" min="0" max="20" step="0.01" value="0">
+    <span id="lfo"></span>
+
+    <label for="rate">rate</label>
+    <input type="range" id="rate" min="0" max="20" step="0.01" value="0">
+    <span id="rate"></span>
 </div>
 
     <script>
@@ -133,13 +141,14 @@ function generate(){
     var ctx = canvas.getContext("2d");
 
     //PARAMS
+    lfo = lfo1 * document.getElementById("lfo").value;
 var string = document.getElementById("myText").value;
 var modifier = document.getElementById("modifier").value;
 var lettersize = document.getElementById("lettersize").value;
 var font = document.getElementById("font").value;
-var sint = document.getElementById("sin").value;
-var vectoramount = Number(document.getElementById("vector").value) + lfo1;
-var radoffset = 0.5 * Number(document.getElementById("angle").value) + lfo1;
+var sint = Number(document.getElementById("sin").value)+(lfo*20);
+var vectoramount = Number(document.getElementById("vector").value) + lfo;
+var radoffset = 0.5 * Number(document.getElementById("angle").value) + lfo;
 var margin_coef = document.getElementById("margin").value;
 var gap = document.getElementById("gap").value * lettersize;
 
@@ -152,10 +161,10 @@ var fontdescr = `${lettersize}px ${modifier} ${font}`;
 // ctx.font = "50px bold italics Times";
 ctx.font = fontdescr;
 
-for (var i = 1; i<(height/gap)-1; i = i+1){
+for (var i = 1; i<(height/gap); i = i+1){
     index = i;
     half = Math.floor((height/gap)/2.);
-    if (index > half) {index = half - index % half;}
+    if (index > half) {index = half - (index-1) % half;}
     margin = ((Math.sin(index/half * sint)+1) * 100)*margin_coef;
     // (height/gap) - (i % ((height/gap)/2));
 
@@ -174,6 +183,7 @@ for (var i = 1; i<(height/gap)-1; i = i+1){
         var vecy = vecy * vectoramount * half* 2;
         var distx = 20*Math.log((1-((pointx-w)/pointx)));
         var disty = 20*Math.log((1-((pointy-h)/pointy)));
+        ctx.fillStyle = 'pink'; // sets text color to red
         ctx.fillText(string[s%lenght], w-vecx-offsetvecx, h+vecy+offsetvecy);
     }
     // ctx.fillText(string[lenght-1], (width - 30), gap*i);
@@ -202,6 +212,8 @@ document.getElementById("angle").addEventListener("input", generate);
 document.getElementById("myText").addEventListener("input", generate);
 document.getElementById("font").addEventListener("input", generate);
 document.getElementById("modifier").addEventListener("input", generate);
+document.getElementById("lfo").addEventListener("input", generate);
+// document.getElementById("lfo").addEventListener("input", generate);
 
 
 </script> 
