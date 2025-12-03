@@ -26,15 +26,16 @@
 
     F O N T
 
-    <input type="text" id="myText" value="❀">
+    <input type="text" id="myText" value="❤️">
     <input type="text" id="font" value="serif">
     <input type="text" id="modifier" value="bold italics">
+    <input type="text" id="fontcolor" value="pink">
     <label for="lettersize">lettersize</label>
-    <input type="range" id="lettersize" min="10" max="100" step="1" value="20">
+    <input type="range" id="lettersize" min="10" max="100" step="1" value="15">
     <span id="lettersize"></span>
     
     <label for="gap">gap</label>
-    <input type="range" id="gap" min="0.5" max="10" step="0.01" value="1">
+    <input type="range" id="gap" min="0.5" max="10" step="0.01" value="0.6">
     <span id="gap"></span>
     
     M A R G I N
@@ -58,12 +59,12 @@
     <input type="range" id="angle" min="-3.1" max="3.1" step="0.01" value="0">
     <span id="angle"></span>
 
-    <label for="lfo">lfo</label>
-    <input type="range" id="lfo" min="0" max="20" step="0.01" value="0">
+    <label for="lfo">lfo amount</label>
+    <input type="range" id="lfo" min="0" max="20" step="0.01" value="1">
     <span id="lfo"></span>
 
     <label for="rate">rate</label>
-    <input type="range" id="rate" min="0" max="20" step="0.01" value="0">
+    <input type="range" id="rate" min="0.001" max="0.1" step="0.001" value="0.009">
     <span id="rate"></span>
 </div>
 
@@ -139,7 +140,7 @@ function generate(){
     }
     document.body.appendChild(canvas);
     var ctx = canvas.getContext("2d");
-
+    // canvas.style.background = "#33333";  // a valid CSS colour.
     //PARAMS
     lfo = lfo1 * document.getElementById("lfo").value;
 var string = document.getElementById("myText").value;
@@ -151,7 +152,7 @@ var vectoramount = Number(document.getElementById("vector").value) + lfo;
 var radoffset = 0.5 * Number(document.getElementById("angle").value) + lfo;
 var margin_coef = document.getElementById("margin").value;
 var gap = document.getElementById("gap").value * lettersize;
-
+var color = document.getElementById("fontcolor").value
 
 // drawEllipse(ctx, 200, 200, 100, 100);
 // drawLine(ctx, 10, 30, 100, 100);
@@ -183,7 +184,7 @@ for (var i = 1; i<(height/gap); i = i+1){
         var vecy = vecy * vectoramount * half* 2;
         var distx = 20*Math.log((1-((pointx-w)/pointx)));
         var disty = 20*Math.log((1-((pointy-h)/pointy)));
-        ctx.fillStyle = 'pink'; // sets text color to red
+        ctx.fillStyle = color; // sets text color to red
         ctx.fillText(string[s%lenght], w-vecx-offsetvecx, h+vecy+offsetvecy);
     }
     // ctx.fillText(string[lenght-1], (width - 30), gap*i);
@@ -193,7 +194,8 @@ for (var i = 1; i<(height/gap); i = i+1){
 
 
 function update(){
-    counter = counter + 0.01;
+    rate = Number(document.getElementById("rate").value);
+    counter = counter + rate;
     lfo1 = Math.sin(counter);
     generate();
 }
@@ -206,6 +208,7 @@ window.addEventListener("resize", generate);
 document.getElementById("sin").addEventListener("input", generate);
 document.getElementById("margin").addEventListener("input", generate);
 document.getElementById("lettersize").addEventListener("input", generate);
+document.getElementById("fontcolor").addEventListener("input", generate);
 document.getElementById("gap").addEventListener("input", generate);
 document.getElementById("vector").addEventListener("input", generate);
 document.getElementById("angle").addEventListener("input", generate);
@@ -213,6 +216,7 @@ document.getElementById("myText").addEventListener("input", generate);
 document.getElementById("font").addEventListener("input", generate);
 document.getElementById("modifier").addEventListener("input", generate);
 document.getElementById("lfo").addEventListener("input", generate);
+document.getElementById("rate").addEventListener("input", generate);
 // document.getElementById("lfo").addEventListener("input", generate);
 
 
