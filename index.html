@@ -93,7 +93,10 @@ function getRad(x1, y1, x2, y2){
 function getVector(rad){
     // hypotenuse = 1
     adj = Math.cos(rad);
+    if (rad >0){ adj = -adj }
     opp = Math.sin(rad);
+    if (rad >0){ opp = -opp }
+
     return [adj, opp];
 }
 
@@ -143,17 +146,19 @@ for (var i = 1; i<(height/gap); i = i+1){
         var pointx = width/2;
         var pointy = height/2;
         var distance = dist(w, h, pointx, pointy);
-        distance = distance * document.getElementById("vector").value;
+        var vectoramount = document.getElementById("vector").value;
+        distance = distance * vectoramount;
         var radoffset = 0.5 * document.getElementById("angle").value;
         var rad = getRad(w, h, pointx, pointy) + radoffset;
-        console.log(rad);
         var [vecx, vecy]= getVector(rad);
-        var vecx = vecx * distance;
-        var vecy = vecy * distance;
+        var offsetvecx = vecx * distance;
+        vecx = vecx * vectoramount * half * 2;
+        var offsetvecy = vecy * distance;
+        var vecy = vecy * vectoramount * half* 2;
         var distx = 20*Math.log((1-((pointx-w)/pointx)));
         var disty = 20*Math.log((1-((pointy-h)/pointy)));
 
-        ctx.fillText(string[s%lenght], w+vecx, h+vecy);
+        ctx.fillText(string[s%lenght], w-vecx-offsetvecx, h+vecy+offsetvecy);
     }
     // ctx.fillText(string[lenght-1], (width - 30), gap*i);
 
