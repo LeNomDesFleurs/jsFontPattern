@@ -9,7 +9,7 @@
         .controller {
             position: absolute;
             background: rgb(144, 131, 131);
-            opacity: 0.8;
+            opacity: 1;
             top: 2rem;
             right: 0.0rem;
             /* left: 0.1rem; */
@@ -18,15 +18,6 @@
             padding: 1rem;
             border-radius: 1em;
             }
-
-        .models-container {
-            position: absolute;
-            top: 0;
-            width: auto;
-            height: 30px;
-            display: flex;
-            background-color: rgb(0, 0, 0, 0);
-        }
         </style>
     </head>
     <body>
@@ -52,9 +43,9 @@
     <input type="range" id="margin" min="0" max="1" step="0.01" value="0.5">
     <span id="margin"></span>
 
-    <label for="slider_wght">sin</label>
-    <input type="range" id="slider_wght" min="0" max="100" step="0.1" value="2">
-    <span id="value_wght"></span>
+    <label for="sin">sin</label>
+    <input type="range" id="sin" min="0" max="100" step="0.01" value="2">
+    <span id="sin"></span>
     <!-- <p></p> -->
     
     S P A C E
@@ -64,20 +55,18 @@
     <span id="vector"></span>
 
     <label for="angle">angle</label>
-    <input type="range" id="angle" min="-3.1" max="3.1" step="0.1" value="0">
+    <input type="range" id="angle" min="-3.1" max="3.1" step="0.01" value="0">
     <span id="angle"></span>
 </div>
 
-        
-
-    <!-- <canvas height="800" id="c" width="800"></canvas> -->
     <script>
-// Source - https://stackoverflow.com/a
-// Posted by toastrackengima, modified by community. See post 'Timeline' for change history
-// Retrieved 2025-12-01, License - CC BY-SA 4.0
+
 
 // TODO add a way to hide / show the sliders with a keyboard command
 
+
+var lfo1 = 0;
+var counter = 0;
 
 function createHiPPICanvas(width, height) {
     const ratio = window.devicePixelRatio;
@@ -97,8 +86,11 @@ function getRad(x1, y1, x2, y2){
     var adjacent = (x1-x2);
     var hypotenuse = dist(x1, y1, x2, y2);
     var theta = Math.acos(adjacent/hypotenuse)
-  if (y1>y2){theta = -theta}
-  return theta;
+    if (y1>y2){theta = -theta}
+    return theta;
+}
+function valuewarp(value, modulo){
+    return Math.sin((value* 3.14) / modulo) * modulo;
 }
 
 function getVector(rad){
@@ -109,43 +101,61 @@ function getVector(rad){
 }
 
 function dist(ax, ay, bx, by){
-    var a = ax - bx;
+var a = ax - bx;
 var b = ay - by;
 var c = Math.hypot(a,b)
 return c;
 }
 
-function generate(){
-    // TODO make dynamic
-var width = window.innerWidth;
-var height = window.innerHeight;
-
-var canvas = createHiPPICanvas(width, height);
-if (document.body.hasChildNodes()) {
-    document.body.removeChild(document.body.lastElementChild);
+function drawEllipse(ctx, x, y, w, h, angle=1){
+ctx.beginPath();
+ctx.ellipse(x, y, w, h, Math.PI / angle, 0, 2 * Math.PI);
+ctx.stroke();
 }
-document.body.appendChild(canvas);
 
-var ctx = canvas.getContext("2d")
-// ctx.fillStyle = "black";
-// ctx.textAlign = 'right';
+function drawLine(ctx, x, y, x2, y2){
+ctx.beginPath();
+ctx.moveTo(x, y);
+ctx.lineTo(x2, y2);
+ctx.stroke();
+}
 
+function generate(){
+    
+    //INIT 
+    var width = window.innerWidth;
+    var height = window.innerHeight;
+    var canvas = createHiPPICanvas(width, height);
+    if (document.body.hasChildNodes()) {
+        document.body.removeChild(document.body.lastElementChild);
+    }
+    document.body.appendChild(canvas);
+    var ctx = canvas.getContext("2d");
+
+    //PARAMS
 var string = document.getElementById("myText").value;
-var lenght = string.length;
 var modifier = document.getElementById("modifier").value;
 var lettersize = document.getElementById("lettersize").value;
 var font = document.getElementById("font").value;
+var sint = document.getElementById("sin").value;
+var vectoramount = Number(document.getElementById("vector").value) + lfo1;
+var radoffset = 0.5 * Number(document.getElementById("angle").value) + lfo1;
+var margin_coef = document.getElementById("margin").value;
+var gap = document.getElementById("gap").value * lettersize;
+
+
+// drawEllipse(ctx, 200, 200, 100, 100);
+// drawLine(ctx, 10, 30, 100, 100);
+
+var lenght = string.length;
 var fontdescr = `${lettersize}px ${modifier} ${font}`;
-console.log(fontdescr)
 // ctx.font = "50px bold italics Times";
 ctx.font = fontdescr;
-gap = document.getElementById("gap").value * lettersize;
-for (var i = 1; i<(height/gap); i = i+1){
+
+for (var i = 1; i<(height/gap)-1; i = i+1){
     index = i;
-    let sint = document.getElementById("slider_wght").value;
     half = Math.floor((height/gap)/2.);
     if (index > half) {index = half - index % half;}
-    margin_coef = document.getElementById("margin").value
     margin = ((Math.sin(index/half * sint)+1) * 100)*margin_coef;
     // (height/gap) - (i % ((height/gap)/2));
 
@@ -155,9 +165,7 @@ for (var i = 1; i<(height/gap); i = i+1){
         var pointx = width/2;
         var pointy = height/2;
         var distance = dist(w, h, pointx, pointy);
-        var vectoramount = document.getElementById("vector").value;
         distance = distance * vectoramount;
-        var radoffset = 0.5 * document.getElementById("angle").value;
         var rad = getRad(w, h, pointx, pointy) + radoffset;
         var [vecx, vecy]= getVector(rad);
         var offsetvecx = vecx * distance;
@@ -169,15 +177,23 @@ for (var i = 1; i<(height/gap); i = i+1){
         ctx.fillText(string[s%lenght], w-vecx-offsetvecx, h+vecy+offsetvecy);
     }
     // ctx.fillText(string[lenght-1], (width - 30), gap*i);
-
     //TODO general offset / wave / gravity
+}
+}
 
+
+function update(){
+    counter = counter + 0.01;
+    lfo1 = Math.sin(counter);
+    generate();
 }
-}
+
+// call update every 1000ms
+setInterval(update, 16);
 
 generate()
 window.addEventListener("resize", generate);
-document.getElementById("slider_wght").addEventListener("input", generate);
+document.getElementById("sin").addEventListener("input", generate);
 document.getElementById("margin").addEventListener("input", generate);
 document.getElementById("lettersize").addEventListener("input", generate);
 document.getElementById("gap").addEventListener("input", generate);
@@ -187,22 +203,7 @@ document.getElementById("myText").addEventListener("input", generate);
 document.getElementById("font").addEventListener("input", generate);
 document.getElementById("modifier").addEventListener("input", generate);
 
- 
-
-// ctx.font = "bold italic 50px Arial";
-// // ctx.font = "50px Arial";
-// ctx.fillText("Hello World",10,80);
-
-// ctx.font = "50px Arial";
-// ctx.strokeText("Hello World",10,80);
-// console.log(canvas)
-
-//TODO size problem on image conversion
-// var img    = canvas.toDataURL("image/png");
-//     document.write('<img src="'+img+'"/>');
 
 </script> 
-
-<!-- <script src="picture.js"></script> -->
 </body>
 </html>
