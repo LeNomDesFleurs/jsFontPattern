@@ -33,17 +33,11 @@
 
 <div class="controller">
 
+    F O N T
+
     <input type="text" id="myText" value="G H O S T">
     <input type="text" id="font" value="serif">
-
-    <label for="slider_wght">sin</label>
-    <input type="range" id="slider_wght" min="0" max="100" step="0.1" value="2">
-    <span id="value_wght"></span>
-    <!-- <p></p> -->
-    <label for="margin">margin</label>
-    <input type="range" id="margin" min="0" max="1" step="0.01" value="0">
-    <span id="margin"></span>
-    
+    <input type="text" id="modifier" value="bold italics">
     <label for="lettersize">lettersize</label>
     <input type="range" id="lettersize" min="10" max="100" step="1" value="20">
     <span id="lettersize"></span>
@@ -51,13 +45,26 @@
     <label for="gap">gap</label>
     <input type="range" id="gap" min="0.5" max="10" step="0.01" value="1">
     <span id="gap"></span>
+    
+    M A R G I N
+
+    <label for="margin">margin</label>
+    <input type="range" id="margin" min="0" max="1" step="0.01" value="0.5">
+    <span id="margin"></span>
+
+    <label for="slider_wght">sin</label>
+    <input type="range" id="slider_wght" min="0" max="100" step="0.1" value="2">
+    <span id="value_wght"></span>
+    <!-- <p></p> -->
+    
+    S P A C E
 
     <label for="vector">vector</label>
-    <input type="range" id="vector" min="0.0" max="10" step="0.01" value="1">
+    <input type="range" id="vector" min="0.0" max="10" step="0.01" value="0">
     <span id="vector"></span>
 
     <label for="angle">angle</label>
-    <input type="range" id="angle" min="-3.1" max="3.1" step="0.1" value="1">
+    <input type="range" id="angle" min="-3.1" max="3.1" step="0.1" value="0">
     <span id="angle"></span>
 </div>
 
@@ -86,17 +93,18 @@ function createHiPPICanvas(width, height) {
 }
 
 function getRad(x1, y1, x2, y2){
-  angle = Math.acos((x1-x2)/(dist(x1, y1, x2, y2)*3))
-  return angle;
+    //cos(theta) = adj/hypo
+    var adjacent = (x1-x2);
+    var hypotenuse = dist(x1, y1, x2, y2);
+    var theta = Math.acos(adjacent/hypotenuse)
+  if (y1>y2){theta = -theta}
+  return theta;
 }
 
 function getVector(rad){
     // hypotenuse = 1
     adj = Math.cos(rad);
-    if (rad >0){ adj = -adj }
     opp = Math.sin(rad);
-    if (rad >0){ opp = -opp }
-
     return [adj, opp];
 }
 
@@ -124,12 +132,12 @@ var ctx = canvas.getContext("2d")
 
 var string = document.getElementById("myText").value;
 var lenght = string.length;
-
-// ctx.font = "20px sans-serif";
-lettersize = document.getElementById("lettersize").value;
+var modifier = document.getElementById("modifier").value;
+var lettersize = document.getElementById("lettersize").value;
 font = document.getElementById("font").value;
-// lettersize = number(lettersize);
-ctx.font = `${lettersize}px ${font} italics`;
+fontdescr = `${modifier} ${lettersize}px ${font}`;
+console.log(fontdescr);
+ctx.font = fontdescr;
 gap = document.getElementById("gap").value * lettersize;
 for (var i = 1; i<(height/gap); i = i+1){
     index = i;
@@ -157,7 +165,6 @@ for (var i = 1; i<(height/gap); i = i+1){
         var vecy = vecy * vectoramount * half* 2;
         var distx = 20*Math.log((1-((pointx-w)/pointx)));
         var disty = 20*Math.log((1-((pointy-h)/pointy)));
-
         ctx.fillText(string[s%lenght], w-vecx-offsetvecx, h+vecy+offsetvecy);
     }
     // ctx.fillText(string[lenght-1], (width - 30), gap*i);
@@ -177,6 +184,7 @@ document.getElementById("vector").addEventListener("input", generate);
 document.getElementById("angle").addEventListener("input", generate);
 document.getElementById("myText").addEventListener("input", generate);
 document.getElementById("font").addEventListener("input", generate);
+document.getElementById("modifier").addEventListener("input", generate);
 
  
 
