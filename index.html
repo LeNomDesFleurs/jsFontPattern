@@ -32,6 +32,10 @@
     <body>
 
 <div class="controller">
+
+    <input type="text" id="myText" value="G H O S T">
+    <input type="text" id="font" value="serif">
+
     <label for="slider_wght">sin</label>
     <input type="range" id="slider_wght" min="0" max="100" step="0.1" value="2">
     <span id="value_wght"></span>
@@ -47,6 +51,14 @@
     <label for="gap">gap</label>
     <input type="range" id="gap" min="0.5" max="10" step="0.01" value="1">
     <span id="gap"></span>
+
+    <label for="vector">vector</label>
+    <input type="range" id="vector" min="0.0" max="10" step="0.01" value="1">
+    <span id="vector"></span>
+
+    <label for="angle">angle</label>
+    <input type="range" id="angle" min="-3.1" max="3.1" step="0.1" value="1">
+    <span id="angle"></span>
 </div>
 
         
@@ -57,9 +69,7 @@
 // Posted by toastrackengima, modified by community. See post 'Timeline' for change history
 // Retrieved 2025-12-01, License - CC BY-SA 4.0
 
-// TODO add slider
 // TODO add a way to hide / show the sliders with a keyboard command
-// TODO add a way to save the canvas
 
 
 function createHiPPICanvas(width, height) {
@@ -73,6 +83,18 @@ function createHiPPICanvas(width, height) {
     canvas.getContext("2d").scale(ratio, ratio);
 
     return canvas;
+}
+
+function getRad(x1, y1, x2, y2){
+  angle = Math.acos((x1-x2)/(dist(x1, y1, x2, y2)*3))
+  return angle;
+}
+
+function getVector(rad){
+    // hypotenuse = 1
+    adj = Math.cos(rad);
+    opp = Math.sin(rad);
+    return [adj, opp];
 }
 
 function dist(ax, ay, bx, by){
@@ -97,13 +119,14 @@ var ctx = canvas.getContext("2d")
 // ctx.fillStyle = "black";
 // ctx.textAlign = 'right';
 
-var string = "WHAT?";
+var string = document.getElementById("myText").value;
 var lenght = string.length;
 
-ctx.font = "20px sans-serif";
+// ctx.font = "20px sans-serif";
 lettersize = document.getElementById("lettersize").value;
+font = document.getElementById("font").value;
 // lettersize = number(lettersize);
-ctx.font = `${lettersize}px sans-serif`;
+ctx.font = `${lettersize}px ${font} italics`;
 gap = document.getElementById("gap").value * lettersize;
 for (var i = 1; i<(height/gap); i = i+1){
     index = i;
@@ -115,16 +138,22 @@ for (var i = 1; i<(height/gap); i = i+1){
     // (height/gap) - (i % ((height/gap)/2));
 
     for (var s = 0; s<((lenght*index)); s = s+1){
-        console.log(index)
         w = margin+(((width-(margin*2)) / ((lenght*index)-1))*s);
         h = gap*i;
         var pointx = width/2;
         var pointy = height/2;
-        var distance = dist (w, h, pointx, pointy)/3;
+        var distance = dist(w, h, pointx, pointy);
+        distance = distance * document.getElementById("vector").value;
+        var radoffset = 0.5 * document.getElementById("angle").value;
+        var rad = getRad(w, h, pointx, pointy) + radoffset;
+        console.log(rad);
+        var [vecx, vecy]= getVector(rad);
+        var vecx = vecx * distance;
+        var vecy = vecy * distance;
         var distx = 20*Math.log((1-((pointx-w)/pointx)));
-        // console.log(distx)
         var disty = 20*Math.log((1-((pointy-h)/pointy)));
-        ctx.fillText(string[s%lenght], w, h);
+
+        ctx.fillText(string[s%lenght], w+vecx, h+vecy);
     }
     // ctx.fillText(string[lenght-1], (width - 30), gap*i);
 
@@ -139,6 +168,10 @@ document.getElementById("slider_wght").addEventListener("input", generate);
 document.getElementById("margin").addEventListener("input", generate);
 document.getElementById("lettersize").addEventListener("input", generate);
 document.getElementById("gap").addEventListener("input", generate);
+document.getElementById("vector").addEventListener("input", generate);
+document.getElementById("angle").addEventListener("input", generate);
+document.getElementById("myText").addEventListener("input", generate);
+document.getElementById("font").addEventListener("input", generate);
 
  
 
